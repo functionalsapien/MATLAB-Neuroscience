@@ -107,3 +107,33 @@ for i = 1:length(matching_trials)
     legend('Stimulus', 'Eye Position');
     grid on;
 end
+
+%% Comparison of X Eye position processing
+trial_idx = 2; % Select Trial 2
+
+% Extract different versions of X eye position
+xRaw = eyeData.xRaw(trial_idx, :);
+x = eyeData.x(trial_idx, :);
+x2 = eyeData.x2(trial_idx, :);
+time_eye = eyeData.t; % Time axis
+
+% Align Eye Data Time Range (Trim to 4500 ms)
+valid_indices = time_eye <= 4500; % Keep only up to 4500 ms
+time_eye = time_eye(valid_indices);
+xRaw = xRaw(valid_indices);
+x = x(valid_indices);
+x2 = x2(valid_indices);
+
+disp(['New Eye Data Time Range: ', num2str(min(time_eye)), ' to ', num2str(max(time_eye)), ' ms']);
+
+% Plot comparison
+figure;
+plot(time_eye, xRaw, 'k', 'LineWidth', 0.5); hold on; % Raw in black
+plot(time_eye, x, 'b', 'LineWidth', 0.5); % Partially processed in blue
+plot(time_eye, x2, 'r', 'LineWidth', 0.5); % Most processed in red
+
+xlabel('Time (ms)');
+ylabel('X Position');
+title('Comparison of X Eye Position Processing (Trial 2)');
+legend('Raw (xRaw)', 'Processed (x)', 'Fully Processed (x2)');
+grid on;
