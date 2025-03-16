@@ -1,108 +1,109 @@
-cd '~/Desktop/Project data'
-load('NP.pursuit2D.stimType3.Session1.mat');  
-% Extract time points and stimulus position for Trial 2
-trial_idx = 2; % Trial 2 (MATLAB indexing starts at 1)
-time_stim = stim.tTraj; % Time points for stimulus positions
-x_stim = squeeze(stim.posTraj(trial_idx,1,:)); % X-positions for Trial 2
-y_stim = squeeze(stim.posTraj(trial_idx,2,:)); % Y-positions for Trial 2
-
-% Stimulus position trajectory in three different ways (trial 2)
-
-%% X vs time (s)
-figure;
-plot(time_stim, x_stim, 'b', 'LineWidth', 2);
-xlabel('Time (ms)');
-ylabel('X Position');
-title('X-Position vs. Time (Trial 2)');
-grid on;
-
-%% Y vs time (s)
-figure;
-plot(time_stim, y_stim, 'r', 'LineWidth', 2);
-xlabel('Time (ms)');
-ylabel('Y Position');
-title('Y-Position vs. Time (Trial 2)');
-grid on;
-
-%% Y position vs X position
-figure;
-plot(x_stim, y_stim, 'k', 'LineWidth', 2);
-xlabel('X Position');
-ylabel('Y Position');
-title('Y-position versus X-position (Trial 2)');
-grid on;
-axis equal; 
-
-%%
-
-% Extract time points and eye position for Trial 2
+%% Extract Stimulus and Eye Data for Trial 2
 trial_idx = 2; % MATLAB indexing starts at 1
 
-time_eye = eyeData.t; % Time points for eye positions
-x_eye = squeeze(eyeData.x2(trial_idx, :)); % X-eye position for Trial 2
-y_eye = squeeze(eyeData.y2(trial_idx, :)); % Y-eye position for Trial 2
+% Stimulus Data
+time_stim = stim.tTraj;  % Time points for stimulus positions
 
-% Eye position in three different ways (trial 2)
+% Ensure trial index is within bounds
+if trial_idx > size(stim.posTraj,1)
+    disp(['Skipping trial ', num2str(trial_idx), ' as it exceeds available trials']);
+else
+    xStim = squeeze(stim.posTraj(trial_idx,1,:)); % X stimulus positions
+    yStim = squeeze(stim.posTraj(trial_idx,2,:)); % Y stimulus positions
+end
 
-%% X-Eye Position vs. Time (s)
+% Eye Data
+time_eye = eyeData.t;
+xEye = squeeze(eyeData.x2(trial_idx, :));
+yEye = squeeze(eyeData.y2(trial_idx, :));
+
+% Align Eye Data Time Range
+time_eye = time_eye - min(time_eye); % Normalize time to start at 0
+valid_indices = time_eye <= max(time_stim);
+time_eye = time_eye(valid_indices);
+xEye = xEye(valid_indices);
+yEye = yEye(valid_indices);
+
+disp(['New Eye Data Time Range: ', num2str(min(time_eye)), ' to ', num2str(max(time_eye)), ' ms']);
+
+%% PLOT: Stimulus and Eye Position for Trial 2 Using Subplots
 figure;
-plot(time_eye, x_eye, 'b', 'LineWidth', 2);
-xlabel('Time (ms)');
-ylabel('X-Eye Position');
-title('X-Eye Position vs. Time (Trial 2)');
-grid on;
+sgtitle('Visualization of Trial 2');
 
-%% Y-Eye Position vs. Time (s)
-figure;
-plot(time_eye, y_eye, 'r', 'LineWidth', 2);
-xlabel('Time (ms)');
-ylabel('Y-Eye Position');
-title('Y-Eye Position vs. Time (Trial 2)');
-grid on;
-
-%% Y-Eye Position vs. X-Eye Position (Eye Trajectory)
-figure;
-plot(x_eye, y_eye, 'k', 'LineWidth', 2);
-xlabel('X-Eye Position');
-ylabel('Y-Eye Position');
-title('Eye Trajectory (Trial 2)');
-grid on;
-axis equal; % Keep the aspect ratio equal
-
-%% Overlay Plots
-
-%X-Position vs. Time (Stimulus & Eye Movement)
-figure;
-plot(time_stim, x_stim, 'b', 'LineWidth', 2); hold on; % Stimulus
-plot(time_eye, x_eye, 'r', 'LineWidth', 1.5); % Eye movement
-xlabel('Time (ms)');
-ylabel('X Position');
+% X-Position vs. Time
+subplot(3,1,1);
+plot(time_stim, xStim, 'b', 'LineWidth', 2); hold on;
+plot(time_eye, xEye, 'r', 'LineWidth', 1.5);
+xlabel('Time (ms)'); ylabel('X Position');
 title('X-Position vs. Time (Trial 2)');
 legend('Stimulus', 'Eye Position');
 grid on;
-hold off;
 
-
-%% Y-Position vs. Time (Stimulus & Eye Movement)
-figure;
-plot(time_stim, y_stim, 'b', 'LineWidth', 2); hold on; % Stimulus
-plot(time_eye, y_eye, 'r', 'LineWidth', 1.5); % Eye movement
-xlabel('Time (ms)');
-ylabel('Y Position');
+% Y-Position vs. Time
+subplot(3,1,2);
+plot(time_stim, yStim, 'b', 'LineWidth', 2); hold on;
+plot(time_eye, yEye, 'r', 'LineWidth', 1.5);
+xlabel('Time (ms)'); ylabel('Y Position');
 title('Y-Position vs. Time (Trial 2)');
 legend('Stimulus', 'Eye Position');
 grid on;
-hold off;
 
-%% Y-Position vs. X-Position (Trajectory)
-figure;
-plot(x_stim, y_stim, 'b', 'LineWidth', 2); hold on; % Stimulus trajectory
-plot(x_eye, y_eye, 'r', 'LineWidth', 1.5); % Eye movement trajectory
-xlabel('X Position');
-ylabel('Y Position');
+% X vs. Y Trajectory
+subplot(3,1,3);
+plot(xStim, yStim, 'b', 'LineWidth', 2); hold on;
+plot(xEye, yEye, 'r', 'LineWidth', 1.5);
+xlabel('X Position'); ylabel('Y Position');
 title('Stimulus vs. Eye Trajectory (Trial 2)');
 legend('Stimulus', 'Eye Position');
 grid on;
-axis equal; % Keep the aspect ratio equal
-hold off;
-%%
+
+%% LOOP: Plot for All Trials with Same condId as Trial 2
+matching_trials = find(stim.condIds == stim.condIds(trial_idx)); % Find all trials with same condition ID
+
+figure;
+sgtitle('Visualization of All Matching Trials');
+
+for i = 1:length(matching_trials)
+    trial = matching_trials(i);
+    
+    % Extract stimulus positions
+    xStim = squeeze(stim.posTraj(trial,1,:));
+    yStim = squeeze(stim.posTraj(trial,2,:));
+
+    % Extract eye positions
+    xEye = squeeze(eyeData.x2(trial, :));
+    yEye = squeeze(eyeData.y2(trial, :));
+
+    % Align eye data time range
+    time_eye = eyeData.t;
+    time_eye = time_eye - min(time_eye);
+    valid_indices = time_eye <= max(time_stim);
+    time_eye = time_eye(valid_indices);
+    xEye = xEye(valid_indices);
+    yEye = yEye(valid_indices);
+
+    % Plot all trials in the same figure with subplots
+    subplot(3,1,1);
+    plot(time_stim, xStim, 'b', 'LineWidth', 1); hold on;
+    plot(time_eye, xEye, 'r', 'LineWidth', 0.5);
+    xlabel('Time (ms)'); ylabel('X Position');
+    title('X-Position vs. Time');
+    legend('Stimulus', 'Eye Position');
+    grid on;
+
+    subplot(3,1,2);
+    plot(time_stim, yStim, 'b', 'LineWidth', 1); hold on;
+    plot(time_eye, yEye, 'r', 'LineWidth', 0.5);
+    xlabel('Time (ms)'); ylabel('Y Position');
+    title('Y-Position vs. Time');
+    legend('Stimulus', 'Eye Position');
+    grid on;
+
+    subplot(3,1,3);
+    plot(xStim, yStim, 'b', 'LineWidth', 1); hold on;
+    plot(xEye, yEye, 'r', 'LineWidth', 0.5);
+    xlabel('X Position'); ylabel('Y Position');
+    title('Stimulus vs. Eye Trajectory');
+    legend('Stimulus', 'Eye Position');
+    grid on;
+end
