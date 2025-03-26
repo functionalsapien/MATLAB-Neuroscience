@@ -1,6 +1,8 @@
 %% Extract Stimulus and Eye Data for Trial 2
 trial_idx = 2; % MATLAB indexing starts at 1
 
+% an innocuous change by Nic
+
 % Stimulus Data
 time_stim = stim.tTraj;  % Time points for stimulus positions
 
